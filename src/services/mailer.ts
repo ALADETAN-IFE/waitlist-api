@@ -36,7 +36,7 @@ const sendEmail = async (
 
         console.log('Email sent successfully:', response.data);
         return true;
-    } catch (error) {
+        } catch (error) {
         const emailError = error as EmailError;
         console.error('Error sending email:', emailError.response?.data || emailError.message);
         return false;

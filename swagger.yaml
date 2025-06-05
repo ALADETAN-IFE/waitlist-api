@@ -1,0 +1,151 @@
+openapi: 3.0.0
+info:
+  title: Waitlist API
+  description: API for managing a waitlist system with email notifications
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://waitlist-api-m3t6.onrender.com/api
+
+servers:
+  - url: https://waitlist-api-m3t6.onrender.com/api
+    description: Production server
+
+paths:
+  /subscribe:
+    post:
+      summary: Subscribe to waitlist
+      description: Add a new user to the waitlist and send a welcome email
+      operationId: subscribe
+      tags:
+        - Waitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+      responses:
+        '201':
+          description: Successfully subscribed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribeSuccess'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /send_mail:
+    post:
+      summary: Send launch emails
+      description: Send launch announcement emails to all subscribers
+      operationId: sendMail
+      tags:
+        - Waitlist
+      responses:
+        '200':
+          description: Emails sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMailResponse'
+        '404':
+          description: No subscribers found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    SubscribeRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: User's full name
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: john@example.com
+
+    SubscribeSuccess:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Subscribed successfully
+
+    SendMailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Email sending completed
+        results:
+          type: object
+          properties:
+            total:
+              type: integer
+              description: Total number of subscribers
+              example: 100
+            successful:
+              type: integer
+              description: Number of successfully sent emails
+              example: 95
+            failed:
+              type: integer
+              description: Number of failed email sends
+              example: 5
+            failedEmails:
+              type: array
+              items:
+                type: string
+              description: List of email addresses where sending failed
+              example: ["failed1@example.com", "failed2@example.com"]
+            succesEmails:
+              type: array
+              items:
+                type: string
+              description: List of email addresses where sending was successful
+              example: ["success1@example.com", "success2@example.com"]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Invalid email format
+        message:
+          type: string
+          description: Error message (for send_mail endpoint)
+          example: No subscribers found
+
+  securitySchemes:
+    none:
+      type: apiKey
+      in: header
+      name: none
+      description: This API does not require authentication 
