@@ -5,7 +5,7 @@ export interface userPayload {
 
 export interface EmailError {
     response?: {
-        data?: any;
+        data?: any;  
     };
     message: string;
 }
