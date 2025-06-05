@@ -16,12 +16,12 @@ app.use('/api', router);
 
 // Default route
 app.get('/', (req, res) => {
-  res.send('Welcome to the Email Subscription Service!');
+  res.send('Welcome to the Muve Email Subscription Service Api!');
 });
 
 // app not yet live
 app.get('/link', (req, res) => {
-  res.send('App is not yet live');
+  res.send('Muve is not yet live');
 });
 
 // Handle invalid HTTP methods for existing routes
