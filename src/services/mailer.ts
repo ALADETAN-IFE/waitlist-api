@@ -12,6 +12,11 @@ const sendEmail = async (
     textContent: string
 ): Promise<boolean> => {
     try {
+        if (!process.env.BREVO_API_KEY || !process.env.BREVO_SENDER_EMAIL) {
+            console.error('Brevo API key or sender email is not configured.');
+            return false;
+        }
+
         const response = await axios({
             method: 'POST',
             url: 'https://api.brevo.com/v3/smtp/email',
