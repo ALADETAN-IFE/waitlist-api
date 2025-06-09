@@ -45,6 +45,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /remove_user:
+    post:
+      summary: Remove user from waitlist
+      description: Remove a user from the waitlist using their email
+      operationId: removeSubscribed
+      tags:
+        - Waitlist
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveUserRequest'
+      responses:
+        '200':
+          description: User successfully removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveUserSuccess'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /get_all:
+    get:
+      summary: Get all subscribers
+      description: Retrieve a list of all waitlist subscribers
+      operationId: getAllSubscribed
+      tags:
+        - Waitlist
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of subscribers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllSubscribersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /send_mail:
     post:
       summary: Send launch emails
@@ -52,6 +140,8 @@ paths:
       operationId: sendMail
       tags:
         - Waitlist
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Emails sent successfully
@@ -59,6 +149,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendMailResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: No subscribers found
           content:
@@ -95,7 +197,48 @@ components:
       properties:
         message:
           type: string
-          example: Subscribed successfully
+          example: Subscribed successfully! You are now number 50 on the waitlist.
+
+    RemoveUserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user to remove
+          example: john@example.com
+
+    RemoveUserSuccess:
+      type: object
+      properties:
+        message:
+          type: string
+          example: john@example.com has been removed from the waitlist
+
+    GetAllSubscribersResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 50 users subscribed
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: John Doe
+              email:
+                type: string
+                format: email
+                example: john@example.com
+              createdAt:
+                type: string
+                format: date-time
+                example: "2024-02-20T10:00:00Z"
 
     SendMailResponse:
       type: object
@@ -144,8 +287,8 @@ components:
           example: No subscribers found
 
   securitySchemes:
-    none:
+    ApiKeyAuth:
       type: apiKey
       in: header
-      name: none
-      description: This API does not require authentication 
+      name: x-api-key
+      description: API key for authentication 

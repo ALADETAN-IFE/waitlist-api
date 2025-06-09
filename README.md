@@ -5,8 +5,10 @@ This project provides a simple API for managing user subscriptions and sending e
 ## Features
 
 - **User Subscription:** Accepts user details (name and email) and saves them.
-- **Email Notifications:** Sends launch emails using Nodemailer with Brevo SMTP relay.
+- **Waitlist Position:** Users can see their position on the waitlist.
+- **Email Notifications:** Sends welcome and launch emails using Brevo SMTP relay.
 - **Mongoose Integration:** Stores subscriber details in MongoDB.
+- **API Authentication:** Protected routes using API key authentication.
 
 ## Getting Started
 
@@ -14,7 +16,7 @@ This project provides a simple API for managing user subscriptions and sending e
 
 - [Node.js](https://nodejs.org/) v14+
 - [MongoDB](https://www.mongodb.com/)
-- An SMTP account (using [Brevo](https://www.brevo.com/) in this example)
+- A [Brevo](https://www.brevo.com/) account for email services
 
 ### Installation
 
@@ -34,10 +36,12 @@ This project provides a simple API for managing user subscriptions and sending e
 3. Create a `.env` file in the root directory with the following contents:
 
     ```env
-    EMAIL_USER=your-email@example.com
-    EMAIL_PASS=your-smtp-password
+    PORT=5000
     MONGO_URI=your-mongodb-uri
-    PORT=3000
+    BREVO_API_KEY=your-brevo-api-key
+    BREVO_SENDER_EMAIL=your-verified-sender-email
+    API_KEY=your-secret-api-key
+    LAUNCH_URL=your-launch-url
     ```
 
 ### Running the Application
@@ -45,40 +49,53 @@ This project provides a simple API for managing user subscriptions and sending e
 Start the application using:
 
 ```sh
-npm start
+npm run dev    # For development
+npm start      # For production
 ```
 
-The API will run on `http://localhost:3000`.
-
-**Development and Build Scripts:**
-
-- You use `npm run dev` during development → nodemon runs `src/index.ts`.
-- You use `npm run build` to compile to `dist/index.js`.
-- You use `npm start` for production → runs `node dist/index.js`.
+The API will run on `http://localhost:5000`.
 
 ## API Endpoints
 
-- **POST /subscribe**
+### Public Endpoints
 
-  Endpoint to subscribe a user. Expects a JSON body with `name` and `email`.
+- **POST /api/subscribe**
+  - Subscribe a new user to the waitlist
+  - Body: `{ "name": "string", "email": "string" }`
+  - Returns: Waitlist position and success message
 
-- **POST /send-mail**
+### Protected Endpoints (Requires API Key)
+Add `x-api-key` header with your API key for these endpoints:
 
-  Endpoint to send a launch email. Expects a JSON body with `name` and `email`.
+- **POST /api/remove_user**
+  - Remove a user from the waitlist
+  - Body: `{ "email": "string" }`
+  - Headers: `x-api-key: your-api-key`
+
+- **GET /api/get_all**
+  - Get all subscribed users
+  - Headers: `x-api-key: your-api-key`
+
+- **POST /api/send_mail**
+  - Send launch emails to all subscribers
+  - Headers: `x-api-key: your-api-key`
 
 ## Project Structure
 
-- **src/controllers:** Contains the API controller logic (subscription and mail sending).
-- **src/model:** Contains the Mongoose user model.
-- **src/routes:** Defines the API routes.
-- **src/services:** Contains the mailer service using Nodemailer.
+- **src/controllers:** Contains the API controller logic
+- **src/model:** Contains the Mongoose user model
+- **src/routes:** Defines the API routes
+- **src/services:** Contains the mailer service
+- **src/middleware:** Contains authentication middleware
+- **src/types:** Contains TypeScript interfaces
+- **src/config:** Contains database configuration
 
-## .gitignore
+## Security
 
-The project ignores the following directories/files:
-- `node_modules`
-- `.env`
-- `dist`
+- API key authentication for protected routes
+- Environment variables for sensitive data
+- Input validation for email format
+- Error handling for failed operations
 
 ## License
 
